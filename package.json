@@ -1,0 +1,19 @@
+{
+    "private":      true,
+    "name":         "good-job",
+    "version":      "1.0.0",
+    "description":  "A simple way to write complex asynchronous code.",
+    "keywords":     [   "development",  "async" ],
+    "homepage":     "http://github.com/emilis/good-job",
+    "main":         "./good-job.js",
+    "dependencies": {},
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/emilis/good-job.git"
+    },
+    "bugs": {
+        "url" : "http://github.com/emilis/good-job/issues",
+        "email" : "emilis.d@gmail.com"
+    },
+    "author": "Emilis Dambauskas (http://emilis.github.com/) <emilis.d@gmail.com>"
+}
