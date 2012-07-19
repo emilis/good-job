@@ -1,5 +1,4 @@
 {
-    "private":      true,
     "name":         "good-job",
     "version":      "1.0.0",
     "description":  "A simple way to write complex asynchronous code.",
