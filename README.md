@@ -567,6 +567,28 @@ __Example__
 X.get("a.b.c").getDependencies();
 ```
 
+## Other
+
+<a name="function-uris"></a>
+### Function URIs
+
+Function URIs are Strings representing a function that can be loaded from some external module.
+
+URIs consist of a _path_ and a _fragment_ separated by "#". `"path#fragment"` is used as `require("path")["fragment"]` when compiling a _Task_.
+
+[Task.call](#Task.call), [Task.callSync](#Task.callSync), [Task.onError](#Task.onError), [Task.exitOnError](#Task.exitOnError) accept URIs in place of functions.
+
+__Example__
+
+```javascript
+/// These are equivalent:
+
+var fs =    require("fs");
+X.call(fs.readFile, "/etc/hosts", "utf8");
+
+X.call("fs#readFile", "/etc/hosts", "utf8");
+```
+
 ##  About Good Job
 
 ### Copyright and License
