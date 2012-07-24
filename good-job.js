@@ -285,9 +285,12 @@ Job.prototype.taskDone =    function(name, err, result) {
  *
  */
 Job.prototype.nextStep =    function() {
-    var job =   this;
 
-    obj_map(this.tasks, function(task, tname) {
+    for (var tname in this.tasks) {
+        runTask(this, tname, this.tasks[tname]);
+    }
+
+    function runTask(job, tname, task) {
 
         var wait =  task.dependencies && task.dependencies.length && task.dependencies.some(is_not_done);
         if (!wait) {
@@ -302,7 +305,7 @@ Job.prototype.nextStep =    function() {
                 job.taskDone.bind(job, tname),
                 job.results);
         }
-    });
+    }
 
     function is_not_done(name) {
         return job.results[name] === undefined;
@@ -757,16 +760,9 @@ function arg_map(args, fn) {
 }
 
 
-function obj_map(obj, fn) {
-
-    var ret =   {};
-    for (k in obj) {
-        ret[k] =    fn(obj[k], k);
-    }
-    return ret;
-}
-
-
+/**
+ *
+ */
 function obj_extend() {
     
     var argc =  arguments.length;
