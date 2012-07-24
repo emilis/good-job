@@ -74,6 +74,10 @@ X.get("file_contents")
             <td>&rarr;</td>
             <td><a href="#Job.addTasks">Job.addTasks</a></td>
             <td colspan="2"></td></tr>
+        <tr><td>set</td>
+            <td>&rarr;</td>
+            <td><a href="#Job.set">Job.set</a></td>
+            <td colspan="2"></td></tr>
         <tr><td>createFunction</td>
             <td>&rarr;</td>
             <td><a href="#Job.compile">Job.compile</a></td>
@@ -206,6 +210,30 @@ myJob.addTasks({
     print:      X.call(console.log, X.get("contents")),
 });
 ```
+
+
+<a name="Job.set"></a>
+### Job.set(name, value)<br><sup>set(name, value)</sup>
+
+Add task or set value for the _Job_. Returns the _Job_.
+
+__Arguments__
+
+* name      -   String. Name of the _Task_ or value.
+* value     -   _Task_, _Request_ (will be [converted to Task](#Request.toTask)) or any other value (will be marked as a finished task).
+
+__Example__
+
+```javascript
+var myJob = X.job();
+
+myJob.set("file_name",  "/etc/hosts");
+myJob.set("contents",   X.call("fs#readFile", X.get("file_name"), "ascii"));
+myJob.set("print",      X.call(console.log, X.get("contents"))); 
+
+myJob.run();
+```
+
 
 <a name="Job.compile"></a>
 ### Job.compile(arg\_names, ...)<br><sup>createFunction(arg\_names, ...)</sup>

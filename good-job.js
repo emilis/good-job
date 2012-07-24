@@ -25,6 +25,7 @@ module.exports = {
     job:            function(){ return Job.prototype.extend.apply(new Job(), arguments); },
     extend:         function(){ return Job.prototype.extend.apply(new Job(), arguments); },
     tasks:          function(){ return Job.prototype.addTasks.apply(new Job(), arguments); },
+    set:            function(){ return Job.prototype.set.apply(new Job(), arguments); },
     createFunction: function(){ return Job.prototype.compile.apply(new Job(), arguments); },
     run:            function(){ return Job.prototype.run.apply(new Job(), arguments); },
 
@@ -118,21 +119,31 @@ Job.prototype.extend =  function() {
  *
  */
 Job.prototype.addTasks =   function(task_list) {
-    var job =   this;
 
-    obj_map(task_list, function(tvalue, tname) {
-        
-        if (tvalue instanceof Task) {
-            job.log("FUNC", tname, "Task");
-            job.tasks[tname] =     tvalue;
-        } else if (tvalue instanceof Request) {
-            job.log("FUNC", tname, "Request", tvalue);
-            job.tasks[tname] =     tvalue.toTask();
-        } else {
-            job.log("VALUE", tname, typeof(tvalue));
-            job.results[tname] =   tvalue;
-        }
-    });
+    for (var k in task_list) {
+        this.set(k, task_list[k]);
+    }
+
+    return this;
+};
+
+
+/**
+ *
+ */
+Job.prototype.set =         function(name, value) {
+
+    if (value instanceof Task) {
+        this.log("FUNC", name, "Task");
+        this.tasks[name] =      value;
+    } else if (value instanceof Request) {
+        this.log("FUNC", name, "Request", value);
+        this.tasks[name] =      value.toTask();
+    } else {
+        this.log("VALUE", name, typeof(value));
+        delete this.tasks[name];
+        this.results[name] =    value;
+    }
 
     return this;
 };
