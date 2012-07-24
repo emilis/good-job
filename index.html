@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Good Job : A simple way to write complex asynchronous code." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Good Job</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/emilis/good-job">View on GitHub</a>
+
+          <h1 id="project_title">Good Job</h1>
+          <h2 id="project_tagline">A simple way to write complex asynchronous code.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/emilis/good-job/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/emilis/good-job/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p>Good Job is a Node.js module that lets you glue interdependent asynchronous calls (<em>Tasks</em>) into complex <em>Jobs</em>. These <em>Jobs</em> can then be executed at once, converted to functions, extended and combined.</p>
+
+<p>Good Job goes the extra mile by providing functions and options for error handling, <em>Task</em> logging and <em>Job</em> timeouts. Good Job makes it easier to find bugs, recover from unexpected situations and notice code that needs refactoring.</p>
+
+<p>Although not tested, Good Job should run on any JavaScript platform that provides a synchronous <code>require(module_name)</code> function.</p>
+
+
+
+<h2>Quick Example</h2>
+
+<div class="highlight"><pre><span class="c1">/// It makes sense to use a very short name for good-job variable.</span>
+<span class="c1">/// "X" is used as a convention in this documentation.</span>
+<span class="kd">var</span> <span class="nx">X</span> <span class="o">=</span>         <span class="nx">require</span><span class="p">(</span><span class="s2">"good-job"</span><span class="p">);</span>
+
+<span class="nx">X</span><span class="p">.</span><span class="nx">run</span><span class="p">({</span>
+    <span class="nx">file_name</span><span class="o">:</span>  <span class="s2">"/etc/hosts"</span><span class="p">,</span>
+
+    <span class="nx">contents</span><span class="o">:</span>   <span class="nx">X</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">"fs#readFile"</span><span class="p">,</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"file_name"</span><span class="p">),</span> <span class="s2">"base64"</span><span class="p">)</span>
+                <span class="p">.</span><span class="nx">onError</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">),</span>
+
+    <span class="nx">output</span><span class="o">:</span>     <span class="nx">X</span><span class="p">.</span><span class="nx">callSync</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">,</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"contents"</span><span class="p">)),</span>
+<span class="p">});</span>
+</pre></div>
+
+<h2>Download</h2>
+
+<p>Install using Node Package Manager (npm):</p>
+
+<pre><code>$ npm install good-job
+</code></pre>
+
+<p>Download from GitHub:</p>
+
+<pre><code>$ git clone git://github.com/emilis/good-job.git
+</code></pre>
+
+<p>Or get the zipped version <a href="https://github.com/emilis/good-job/zipball/master">here</a>.</p>
+
+<h2>Documentation</h2>
+
+<p>All of the functions exported by good-job (except <a href="#X.options">options()</a>) create a new <em>Job</em>, <em>Task</em> or <em>Request</em> and call their own methods. You can then use <a href="http://en.wikipedia.org/wiki/Method_chaining">method chaining</a> to extend them:</p>
+
+<div class="highlight"><pre><span class="c1">/// Create a new Task, specify its callback and error handler:</span>
+<span class="nx">X</span><span class="p">.</span><span class="nx">wait</span><span class="p">(</span><span class="s2">"check_permission"</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFile</span><span class="p">,</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"file_name"</span><span class="p">))</span>
+    <span class="p">.</span><span class="nx">onError</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">,</span> <span class="s2">"Failed to read the file."</span><span class="p">);</span>
+
+<span class="c1">/// Create a new Request that will transform its result:</span>
+<span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"file_contents"</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">contents</span><span class="p">){</span>
+        <span class="k">return</span> <span class="nx">contents</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">();</span>
+    <span class="p">});</span>
+</pre></div>
+
+<h3>Exports and methods:</h3>
+
+<table>
+<tr>
+<th colspan="2">good-job exports</th>
+            <th><a href="#Job">Job</a></th>
+            <th><a href="#Task">Task</a></th>
+            <th><a href="#Request">Request</a></th>
+    </tr>
+<tr>
+<td>job, extend</td>
+            <td>→</td>
+            <td><a href="#Job.extend">Job.extend</a></td>
+            <td colspan="2"></td>
+</tr>
+<tr>
+<td>tasks</td>
+            <td>→</td>
+            <td><a href="#Job.addTasks">Job.addTasks</a></td>
+            <td colspan="2"></td>
+</tr>
+<tr>
+<td>set</td>
+            <td>→</td>
+            <td><a href="#Job.set">Job.set</a></td>
+            <td colspan="2"></td>
+</tr>
+<tr>
+<td>createFunction</td>
+            <td>→</td>
+            <td><a href="#Job.compile">Job.compile</a></td>
+            <td colspan="2"></td>
+</tr>
+<tr>
+<td>run</td>
+            <td>→</td>
+            <td><a href="#Job.run">Job.run</a></td>
+            <td colspan="2"></td>
+</tr>
+<tr>
+<td>wait</td>
+            <td>→</td>
+            <td></td>
+            <td><a href="#Task.wait">Task.wait</a></td>
+            <td></td>
+</tr>
+<tr>
+<td>call</td>
+            <td>→</td>
+            <td></td>
+            <td><a href="#Task.call">Task.call</a></td>
+            <td></td>
+</tr>
+<tr>
+<td>callSync</td>
+            <td>→</td>
+            <td></td>
+            <td><a href="#Task.callSync">Task.callSync</a></td>
+            <td></td>
+</tr>
+<tr>
+<td>subTasks</td>
+            <td>→</td>
+            <td></td>
+            <td><a href="#Task.subTasks">Task.subTasks</a></td>
+            <td></td>
+</tr>
+<tr>
+<td>get</td>
+            <td>→</td>
+            <td colspan="2"></td>
+            <td><a href="#Request.get">Request.get</a></td>
+</tr>
+<tr>
+<td>getAll</td>
+            <td>→</td>
+            <td colspan="2"></td>
+            <td><a href="#Request.getAll">Request.getAll</a></td>
+</tr>
+<tr>
+<td colspan="2" valign="top">
+                <a href="#X.options">options</a>
+            </td>
+<td valign="top">
+                <a href="#Job.clone">Job.clone</a><br><a href="#Job.setCallback">Job.setCallback</a><br><a href="#Job.setErrback">Job.setErrback</a><br><a href="#Job.options">Job.options</a><br><a href="#Job.log">Job.log</a><br><a href="#Job.logDone">Job.logDone</a><br>
+</td>
+<td valign="top">
+                <a href="#Task.onError">Task.onError</a><br><a href="#Task.exitOnError">Task.exitOnError</a><br><a href="#Task.compile">Task.compile</a><br>
+</td>
+<td valign="top">
+                <a href="#Request.apply">Request.apply</a><br><a href="#Request.getValue">Request.getValue</a><br><a href="#Request.toTask">Request.toTask</a><br><a href="#Request.getDependencies">Request.getDependencies</a><br>
+</td>
+</tr>
+</table><p><a name="X"></a></p>
+
+<h2>good-job</h2>
+
+<p><a name="X.options"></a></p>
+
+<h3>options(obj)</h3>
+
+<p>Utility function: wraps a given object as an <em>Options</em> object so that it won't be mixed up with a task list by a Job.</p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>obj       -   Key-value options for a Job.</li>
+</ul><p><a name="Job"></a></p>
+
+<h2>Job</h2>
+
+<p>A <em>Job</em> manages asynchronous tasks: tracks their dependencies, executes them when possible, logs their errors. A <em>Job</em> is a dictionary with task names for keys and tasks (or their results) for values.</p>
+
+<p><a name="Job.extend"></a></p>
+
+<h3>Job.extend(...)<br><sup>extend(...)</sup>
+</h3>
+
+<p>Adds more tasks for the <em>Job</em>, sets callback or error handler and options. Returns the <em>Job</em>.</p>
+
+<p><strong>Arguments</strong></p>
+
+<p>Any number of the following:</p>
+
+<ul>
+<li>Object    -   Specifies a task list. Keys for task names, values for <em>Tasks</em> (see <a href="#Job.addTasks">Job.addTasks</a>).</li>
+<li>
+<em>Options</em> -   Sets options for the <em>Job</em>. You can create <em>Options</em> with <a href="#X.options">X.options</a>.</li>
+<li>Function  -   Sets callback for the <em>Job</em>. If the callback is already set, sets the error handler (see <a href="#Job.setCallback">Job.setCallback</a>, <a href="#Job.setErrback">Job.setErrback</a>).</li>
+</ul><p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="nx">X</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span>
+    <span class="nx">X</span><span class="p">.</span><span class="nx">options</span><span class="p">({</span>
+        <span class="nx">id</span><span class="o">:</span>     <span class="s2">"MyJob"</span><span class="p">,</span>
+        <span class="nx">log</span><span class="o">:</span>    <span class="kc">true</span><span class="p">,</span>
+    <span class="p">}),</span>
+    <span class="p">{</span>
+        <span class="nx">task1</span><span class="o">:</span>  <span class="p">...,</span>
+        <span class="nx">task2</span><span class="o">:</span>  <span class="p">...,</span>
+    <span class="p">},</span>
+    <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">/// This will be called when the job finishes successfully.</span>
+        <span class="c1">/// This would also be called if the job had no error handler.</span>
+    <span class="p">},</span>
+    <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">/// This will be called when a task emits an error.</span>
+    <span class="p">});</span>
+</pre></div>
+
+<p><a name="Job.addTasks"></a></p>
+
+<h3>Job.addTasks(task_list)<br><sup>tasks(task_list)</sup>
+</h3>
+
+<p>Adds more tasks for the <em>Job</em>. Returns the <em>Job</em>.</p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>task_list -   An Object with keys for task names and values for <em>Tasks</em>. <em>Requests</em> get converted to <em>Tasks</em>. Other values are marked as finished tasks for the <em>Job</em>.</li>
+</ul><p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="nx">myJob</span><span class="p">.</span><span class="nx">addTasks</span><span class="p">({</span>
+    <span class="nx">file_name</span><span class="o">:</span>  <span class="s2">"/etc/hosts"</span><span class="p">,</span>
+
+    <span class="nx">contents</span><span class="o">:</span>   <span class="nx">X</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFile</span><span class="p">,</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"file_name"</span><span class="p">),</span> <span class="s2">"ascii"</span><span class="p">),</span>
+
+    <span class="nx">print</span><span class="o">:</span>      <span class="nx">X</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">,</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"contents"</span><span class="p">)),</span>
+<span class="p">});</span>
+</pre></div>
+
+<p><a name="Job.set"></a></p>
+
+<h3>Job.set(name, value)<br><sup>set(name, value)</sup>
+</h3>
+
+<p>Add task or set value for the <em>Job</em>. Returns the <em>Job</em>.</p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>name      -   String. Name of the <em>Task</em> or value.</li>
+<li>value     -   <em>Task</em>, <em>Request</em> (will be <a href="#Request.toTask">converted to Task</a>) or any other value (will be marked as a finished task).</li>
+</ul><p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">myJob</span> <span class="o">=</span> <span class="nx">X</span><span class="p">.</span><span class="nx">job</span><span class="p">();</span>
+
+<span class="nx">myJob</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">"file_name"</span><span class="p">,</span>  <span class="s2">"/etc/hosts"</span><span class="p">);</span>
+<span class="nx">myJob</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">"contents"</span><span class="p">,</span>   <span class="nx">X</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">"fs#readFile"</span><span class="p">,</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"file_name"</span><span class="p">),</span> <span class="s2">"ascii"</span><span class="p">));</span>
+<span class="nx">myJob</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">"print"</span><span class="p">,</span>      <span class="nx">X</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">,</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"contents"</span><span class="p">)));</span> 
+
+<span class="nx">myJob</span><span class="p">.</span><span class="nx">run</span><span class="p">();</span>
+</pre></div>
+
+<p><a name="Job.compile"></a></p>
+
+<h3>Job.compile(arg_names, ...)<br><sup>createFunction(arg_names, ...)</sup>
+</h3>
+
+<p>Returns an asynchronous function that runs the <em>Job</em> with the given arguments used as finished task results.</p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>arg_names -   An Array specifying how function arguments will be named inside the <em>Job</em>. E.g. <code>["file_name", "mode"]</code>.</li>
+<li>Further arguments <a href="#Job.extend">extend</a> the <em>Job</em> before creating the function.</li>
+</ul><p><strong>Example</strong></p>
+
+<p>Create a function that joins contents of two files:</p>
+
+<div class="highlight"><pre><span class="c1">/// You could use "job.compile(["f1_name","f2_name])" on an existing job.</span>
+<span class="kd">var</span> <span class="nx">cat2files</span> <span class="o">=</span> <span class="nx">X</span><span class="p">.</span><span class="nx">createFunction</span><span class="p">(</span>
+    <span class="p">[</span><span class="s2">"f1_name"</span><span class="p">,</span> <span class="s2">"f2_name"</span><span class="p">],</span>
+    <span class="p">{</span>
+        <span class="nx">f1_contents</span><span class="o">:</span>    <span class="nx">X</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFile</span><span class="p">,</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"f1_name"</span><span class="p">),</span> <span class="s2">"utf8"</span><span class="p">),</span>
+        <span class="nx">f2_contents</span><span class="o">:</span>    <span class="nx">X</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFile</span><span class="p">,</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"f2_name"</span><span class="p">),</span> <span class="s2">"utf8"</span><span class="p">),</span>
+        <span class="nx">cat</span><span class="o">:</span>            <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">([</span><span class="s2">"f1_contents"</span><span class="p">,</span><span class="s2">"f2_contents"</span><span class="p">])</span>
+                        <span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">c1</span><span class="p">,</span> <span class="nx">c2</span><span class="p">){</span>
+                            <span class="k">return</span> <span class="p">[</span><span class="nx">c1</span><span class="p">,</span> <span class="nx">c2</span><span class="p">].</span><span class="nx">join</span><span class="p">(</span><span class="s2">"\n"</span><span class="p">);</span>
+                        <span class="p">}),</span>
+    <span class="p">});</span>
+
+<span class="c1">/// We can now use the function. Note that it is asynchronous:</span>
+<span class="nx">cat2files</span><span class="p">(</span><span class="s2">"/etc/hosts"</span><span class="p">,</span> <span class="s2">"/etc/passwd"</span><span class="p">,</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">);</span>
+</pre></div>
+
+<p><a name="Job.run"></a></p>
+
+<h3>Job.run(...)<br><sup>run(...)</sup>
+</h3>
+
+<p>Executes the <em>Job</em>.</p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>If there are any, the <em>Job</em> is <a href="#Job.extend">extended</a> before running.</li>
+</ul><p><a name="Job.clone"></a></p>
+
+<h3>Job.clone()</h3>
+
+<p>Returns a clone of the <em>Job</em> object. Needed when executing the <em>Job</em> more than once, because <em>Jobs</em> save their execution state. See also <a href="#Job.compile">Job.compile</a>.</p>
+
+<p><a name="Job.setCallback"></a></p>
+
+<h3>Job.setCallback(cb)</h3>
+
+<p>Sets a function to call when the <em>Job</em> finishes. If the <em>Job</em> has an error handler, this function will only be called on success. Returns the <em>Job</em>.</p>
+
+<p><em>Note that if a task uses <a href="#Task.exitOnError">Task.exitOnError</a>, this Job callback won't be called.</em></p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>cb    -   <code>function(err, result) { ... }</code>
+</li>
+</ul><p><a name="Job.setErrback"></a></p>
+
+<h3>Job.setErrback(cb)</h3>
+
+<p>Sets a function to call when the <em>Job</em> finishes with error - a <em>Task</em> returns an error or a timeout occurs. Returns the <em>Job</em>.</p>
+
+<p><em>Note that if a task uses <a href="#Task.exitOnError">Task.exitOnError</a>, this Job error handler won't be called.</em></p>
+
+<ul>
+<li>cb    -   <code>function(err, result) { ... }</code>
+</li>
+</ul><p><a name="Job.options"></a></p>
+
+<h3>Job.options(obj)</h3>
+
+<p>Overwrites the current <em>Job</em> options. Returns the <em>Job</em>.</p>
+
+<p><strong>Supported Options</strong></p>
+
+<ul>
+<li>id    -   ID for the job that is used for logging.</li>
+<li>log   -   <code>true</code> to turn on logging.</li>
+<li>timeout - Number of miliseconds after which the <em>Job</em> is stopped if not finished.</li>
+</ul><p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="nx">X</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span>
+    <span class="nx">X</span><span class="p">.</span><span class="nx">options</span><span class="p">({</span>
+        <span class="nx">id</span><span class="o">:</span>         <span class="nx">module</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
+        <span class="nx">log</span><span class="o">:</span>        <span class="kc">true</span><span class="p">,</span>
+        <span class="nx">timeout</span><span class="o">:</span>    <span class="mi">2000</span><span class="p">,</span> <span class="c1">// 2 seconds</span>
+    <span class="p">}),</span>
+    <span class="p">{</span>
+        <span class="nx">t1</span><span class="o">:</span> <span class="nx">X</span><span class="p">.</span><span class="nx">callSync</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">,</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">()),</span>
+
+        <span class="nx">t2</span><span class="o">:</span> <span class="nx">X</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">cb</span><span class="p">){</span>
+                <span class="c1">/// This task will cause the Job to timeout:</span>
+                <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">cb</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="s2">"Long task result"</span><span class="p">);</span>
+            <span class="p">}),</span>
+
+        <span class="nx">t3</span><span class="o">:</span> <span class="nx">X</span><span class="p">.</span><span class="nx">callSync</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">,</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"t2"</span><span class="p">)),</span> <span class="c1">// This task will not run</span>
+    <span class="p">});</span>
+</pre></div>
+
+<p><a name="Job.log"></a></p>
+
+<h3>Job.log(msg_type, ...)</h3>
+
+<p>Prints a log message for the <em>Job</em>.</p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>msg_type, - One of: INFO, EXEC, VALUE, FUNC, DONE, LATE, WARN, ERROR, TIMEOUT, DEBUG.</li>
+<li>Further arguments get printed as they are.</li>
+</ul><p><a name="Job.logDone"></a></p>
+
+<h3>Job.logDone(name, err, result)</h3>
+
+<p>Prints a log message for a <em>Task</em> or <em>Job</em> that is done.</p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>name  -   Job or Task name.</li>
+<li>err, result   -   Arguments passed to Task or Job callback (only their types are printed).</li>
+</ul><p><a name="Task"></a></p>
+
+<h2>Task</h2>
+
+<p>A <em>Task</em> is a wrapper around a function that exposes its dependencies for the <a href="#Job">Job</a>. It handles error results, catches exceptions.</p>
+
+<p><a name="Task.wait"></a></p>
+
+<h3>Task.wait(...)<br><sup>wait(...)</sup>
+</h3>
+
+<p>Explicitely adds dependencies for the <em>Task</em>. Returns the <em>Task</em>.</p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>Names (Strings) of other tasks in the <em>Job</em>.</li>
+</ul><p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="nx">X</span><span class="p">.</span><span class="nx">wait</span><span class="p">(</span><span class="s2">"t1"</span><span class="p">,</span> <span class="s2">"t2"</span><span class="p">,</span> <span class="s2">"t3"</span><span class="p">)...</span>
+</pre></div>
+
+<p><a name="Task.call"></a></p>
+
+<h3>Task.call(fn, ...)<br><sup>call(fn, ...)</sup>
+</h3>
+
+<p>Wraps an asynchronous function. Returns the <em>Task</em>.</p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>fn    -   A function or a <a href="#function-uris">function URI</a>. Note that functions will lose their context (<code>this</code> value) unless <a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/bind">bound</a>. The function has to accept callback as its last argument.</li>
+<li>Further values will be passed as arguments to the function when it is called. <em>Request</em> values will be added to the <em>Task</em> dependencies and resolved when the function is called.</li>
+</ul><p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="c1">/// Note that this only creates the Task and does not execute it:</span>
+<span class="nx">X</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">"fs#readFile"</span><span class="p">,</span> <span class="s2">"/etc/hosts"</span><span class="p">,</span> <span class="s2">"utf8"</span><span class="p">);</span>
+</pre></div>
+
+<p><a name="Task.callSync"></a></p>
+
+<h3>Task.callSync(fn, ...)<br><sup>callSync(fn, ...)</sup>
+</h3>
+
+<p>Wraps a synchronous function. Returns the <em>Task</em>.</p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>fn    -   A function or a <a href="#function-uris">function URI</a>. Note that functions will lose their context (<code>this</code> value) unless <a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/bind">bound</a>. The function has to return its result.</li>
+<li>Further values will be passed as arguments to the function when it is called. <em>Request</em> values will be added to the <em>Task</em> dependencies and resolved when the function is called.</li>
+</ul><p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="c1">/// Note that this only creates the Task and does not execute it:</span>
+<span class="nx">X</span><span class="p">.</span><span class="nx">callSync</span><span class="p">(</span><span class="s2">"fs#readFileSync"</span><span class="p">,</span> <span class="s2">"/etc/hosts"</span><span class="p">,</span> <span class="s2">"utf8"</span><span class="p">);</span>
+</pre></div>
+
+<p><a name="Task.subTasks"></a></p>
+
+<h3>Task.subTasks(result_map, tasks)<br><sup>subTasks(result_map, tasks)</sup>
+</h3>
+
+<p>Adds a <em>Job</em> as a <em>Task</em>. Returns the <em>Task</em>.</p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>result_map    -   An Array of dependency names or an Object with keys for parent <em>Job</em> task names and values for child <em>Job</em> task names.</li>
+<li>tasks         -   A task list. See <a href="#Job.addTasks">Job.addTasks</a>.</li>
+</ul><p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="nx">X</span><span class="p">.</span><span class="nx">run</span><span class="p">({</span>
+    <span class="nx">file_name</span><span class="o">:</span>  <span class="s2">"/etc/hosts"</span><span class="p">,</span>
+    <span class="nx">file</span><span class="o">:</span>       <span class="nx">X</span><span class="p">.</span><span class="nx">subTasks</span><span class="p">({</span><span class="s2">"file_name"</span><span class="o">:</span><span class="s2">"name"</span><span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="nx">contents</span><span class="o">:</span>   <span class="nx">X</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">"fs#readFile"</span><span class="p">,</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">),</span> <span class="s2">"utf8"</span><span class="p">),</span>
+                    <span class="nx">stat</span><span class="o">:</span>       <span class="nx">X</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">"fs#stat"</span><span class="p">,</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">)),</span>
+                <span class="p">}),</span>
+    <span class="nx">print</span><span class="o">:</span>      <span class="nx">X</span><span class="p">.</span><span class="nx">callSync</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">,</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"file.name"</span><span class="p">),</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"file.stat.ctime"</span><span class="p">)),</span>
+<span class="p">});</span>
+</pre></div>
+
+<p><a name="Task.onError"></a></p>
+
+<h3>Task.onError(fn, ...)</h3>
+
+<p>Sets an error handler for the <em>Task</em>. This error handler is executed when the <em>Task</em> returns an error or throws an exception. Returns the <em>Task</em>.</p>
+
+<p><em>Job</em> callback/error handler will be called after this function is called.</p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>fn    -   A function or a <a href="#function-uris">function URI</a>. The function has to accept <code>err,result</code> as its last arguments.</li>
+<li>Further values will be passed as arguments to the function when it is called. <em>Request</em> values will be added to the <em>Task</em> dependencies and resolved when the function is called.</li>
+</ul><p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="nx">X</span><span class="p">.</span><span class="nx">run</span><span class="p">({</span>
+    <span class="nx">t1</span><span class="o">:</span> <span class="nx">X</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">"fs#readFile"</span><span class="p">,</span> <span class="s2">"does-not-exist"</span><span class="p">,</span> <span class="s2">"ascii"</span><span class="p">)</span>
+        <span class="p">.</span><span class="nx">onError</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">,</span> <span class="s2">"The file did not exist!"</span><span class="p">),</span>
+    <span class="p">},</span>
+    <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"Job result"</span><span class="p">,</span> <span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">);</span>
+    <span class="p">});</span>
+</pre></div>
+
+<p><a name="Task.exitOnError"></a></p>
+
+<h3>Task.onError(fn, ...)</h3>
+
+<p>Sets an error handler for the <em>Task</em>. This error handler is executed when the <em>Task</em> returns an error or throws an exception. Returns the <em>Task</em>.</p>
+
+<p><em>Job</em> callback/error handler <em>will not</em> be called if this function is called.</p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>fn    -   A function or a <a href="#function-uris">function URI</a>. The function has to accept <code>err,result</code> as its last arguments.</li>
+<li>Further values will be passed as arguments to the function when it is called. <em>Request</em> values will be added to the <em>Task</em> dependencies and resolved when the function is called.</li>
+</ul><p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="nx">X</span><span class="p">.</span><span class="nx">run</span><span class="p">({</span>
+    <span class="nx">t1</span><span class="o">:</span> <span class="nx">X</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">"fs#readFile"</span><span class="p">,</span> <span class="s2">"does-not-exist"</span><span class="p">,</span> <span class="s2">"ascii"</span><span class="p">)</span>
+        <span class="p">.</span><span class="nx">exitOnError</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">,</span> <span class="s2">"The file did not exist!"</span><span class="p">),</span>
+    <span class="p">},</span>
+    <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">/// This will not be called if t1 fails.</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"Job result"</span><span class="p">,</span> <span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">);</span>
+    <span class="p">});</span>
+</pre></div>
+
+<p><a name="Task.compile"></a></p>
+
+<h3>Task.compile()</h3>
+
+<p>Creates and returns a function from the <em>Task</em>. The function accepts callback as its first argument and an object holding requested dependencies as its second argument.</p>
+
+<p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">getFileContents</span> <span class="o">=</span> <span class="nx">X</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">"fs#readFile"</span><span class="p">,</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"file_name"</span><span class="p">),</span> <span class="s2">"utf8"</span><span class="p">).</span><span class="nx">compile</span><span class="p">();</span>
+
+<span class="nx">getFileContents</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">,</span> <span class="p">{</span><span class="nx">file_name</span><span class="o">:</span><span class="s2">"/etc/hosts"</span><span class="p">});</span>
+</pre></div>
+
+<p><a name="Request"></a></p>
+
+<h2>Request</h2>
+
+<p>A <em>Request</em> specifies a <em>Task</em> dependency on a result from some other <em>Task</em> and provides ways to transform this result before using. <em>Requests</em> can also be used as <em>Tasks</em> in a <em>Job</em>.</p>
+
+<p><a name="Request.get"></a></p>
+
+<h3>Request.get(query)<br><sup>get(query)</sup>
+</h3>
+
+<p>Specifies what value to extract from <em>Job</em> results (when it will be needed). Returns the <em>Request</em>.</p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>query -   A String with the name of a <em>Task</em> or a String with the name of an expected property of a <em>Task</em> (e.g. "t1.prop1.prop2"), or an Array of such strings.</li>
+</ul><p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"env.SHELL"</span><span class="p">).</span><span class="nx">getValue</span><span class="p">(</span><span class="nx">process</span><span class="p">);</span>
+</pre></div>
+
+<p><a name="Request.getAll"></a></p>
+
+<h3>Request.getAll()<br><sup>getAll()</sup>
+</h3>
+
+<p>Used as a placeholder for all <em>Job</em> results. Returns the <em>Request</em>.</p>
+
+<p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="nx">X</span><span class="p">.</span><span class="nx">getAll</span><span class="p">().</span><span class="nx">getValue</span><span class="p">({</span><span class="nx">a</span><span class="o">:</span><span class="mi">42</span><span class="p">});</span>
+</pre></div>
+
+<p><a name="Request.apply"></a></p>
+
+<h3>Request.apply(fn)</h3>
+
+<p>Sets a filter function to use when getting value from results. Returns the <em>Request</em>.</p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>fn    -   A function that takes results from <a href="#Request.get">queries</a> as arguments.</li>
+</ul><p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="c1">/// These should print the commands to list your home directory:</span>
+
+<span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"HOME"</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">home</span><span class="p">){</span>
+        <span class="k">return</span> <span class="s2">"ls "</span> <span class="o">+</span> <span class="nx">home</span><span class="p">;</span>
+    <span class="p">})</span>
+    <span class="p">.</span><span class="nx">getValue</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">);</span>
+
+<span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">([</span><span class="s2">"SHELL"</span><span class="p">,</span><span class="s2">"HOME"</span><span class="p">])</span>
+    <span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">shell</span><span class="p">,</span> <span class="nx">home</span><span class="p">){</span>
+        <span class="k">return</span> <span class="nx">shell</span><span class="o">+</span><span class="s1">' -c "ls '</span><span class="o">+</span><span class="nx">home</span><span class="o">+</span><span class="s1">'"'</span><span class="p">;</span>
+    <span class="p">})</span>
+    <span class="p">.</span><span class="nx">getValue</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">);</span>
+
+<span class="nx">X</span><span class="p">.</span><span class="nx">getAll</span><span class="p">()</span>
+    <span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">env</span><span class="p">){</span>
+        <span class="k">return</span> <span class="s2">"ls "</span> <span class="o">+</span> <span class="nx">env</span><span class="p">.</span><span class="nx">HOME</span><span class="p">;</span>
+    <span class="p">})</span>
+    <span class="p">.</span><span class="nx">getValue</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">);</span>
+</pre></div>
+
+<p><a name="Request.getValue"></a></p>
+
+<h3>Request.getValue(results)</h3>
+
+<p>Resolves this <em>Request</em> for the given <em>Job</em> results and returns the requested value.</p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>results   -   An Object with keys for <em>Task</em> names and values for their results.</li>
+</ul><p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"a"</span><span class="p">).</span><span class="nx">getValue</span><span class="p">({</span><span class="nx">a</span><span class="o">:</span><span class="mi">42</span><span class="p">});</span>
+</pre></div>
+
+<p><a name="Request.toTask"></a></p>
+
+<h3>Request.toTask()</h3>
+
+<p>Converts the <em>Request</em> to a <em>Task</em> that just returns the requested value when possible. Returns the <em>Task</em>.</p>
+
+<p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="c1">/// See also Task.compile().</span>
+<span class="kd">var</span> <span class="nx">returnAProperty</span> <span class="o">=</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"a"</span><span class="p">).</span><span class="nx">toTask</span><span class="p">().</span><span class="nx">compile</span><span class="p">();</span>
+<span class="nx">returnAProperty</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">,</span> <span class="p">{</span><span class="nx">a</span><span class="o">:</span><span class="mi">42</span><span class="p">});</span>
+</pre></div>
+
+<p><a name="Request.getDependencies"></a></p>
+
+<h3>Request.getDependencies()</h3>
+
+<p>Returns an Array of names of  <em>Tasks</em> that this <em>Request</em> needs to finish before getting the value.</p>
+
+<p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"a.b.c"</span><span class="p">).</span><span class="nx">getDependencies</span><span class="p">();</span>
+</pre></div>
+
+<h2>Other</h2>
+
+<p><a name="function-uris"></a></p>
+
+<h3>Function URIs</h3>
+
+<p>Function URIs are Strings representing a function that can be loaded from some external module.</p>
+
+<p>URIs consist of a <em>path</em> and a <em>fragment</em> separated by "#". <code>"path#fragment"</code> is used as <code>require("path")["fragment"]</code> when compiling a <em>Task</em>.</p>
+
+<p><a href="#Task.call">Task.call</a>, <a href="#Task.callSync">Task.callSync</a>, <a href="#Task.onError">Task.onError</a>, <a href="#Task.exitOnError">Task.exitOnError</a> accept URIs in place of functions.</p>
+
+<p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="c1">/// These are equivalent:</span>
+
+<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span>    <span class="nx">require</span><span class="p">(</span><span class="s2">"fs"</span><span class="p">);</span>
+<span class="nx">X</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFile</span><span class="p">,</span> <span class="s2">"/etc/hosts"</span><span class="p">,</span> <span class="s2">"utf8"</span><span class="p">);</span>
+
+<span class="nx">X</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="s2">"fs#readFile"</span><span class="p">,</span> <span class="s2">"/etc/hosts"</span><span class="p">,</span> <span class="s2">"utf8"</span><span class="p">);</span>
+</pre></div>
+
+<h2>About Good Job</h2>
+
+<h3>Copyright and License</h3>
+
+<p>Copyright 2012 UAB PriceOn <a href="http://www.priceon.lt/">http://www.priceon.lt/</a>.</p>
+
+<p>This is free software, and you are welcome to redistribute it under certain conditions; see LICENSE.txt for details.</p>
+
+<h3>Author</h3>
+
+<p>Emilis Dambauskas <a href="mailto:emilis@priceon.lt">emilis@priceon.lt</a>, <a href="http://emilis.github.com/">http://emilis.github.com/</a>.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Good Job maintained by <a href="https://github.com/emilis">emilis</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-22621133-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>
