@@ -129,7 +129,7 @@ X.get("file_contents")
                 <a href="#Task.exitOnError">Task.exitOnError</a><br>
                 <a href="#Task.compile">Task.compile</a><br>
             </td><td valign="top">
-                <a href="#Request.map">Request.map</a></br>
+                <a href="#Request.map">Request.map</a><br>
                 <a href="#Request.apply">Request.apply</a><br>
                 <a href="#Request.getValue">Request.getValue</a><br>
                 <a href="#Request.toTask">Request.toTask</a><br>
