@@ -175,6 +175,7 @@
                 <a href="#Task.onError">Task.onError</a><br><a href="#Task.exitOnError">Task.exitOnError</a><br><a href="#Task.compile">Task.compile</a><br>
 </td>
 <td valign="top">
+                <a href="#Request.map">Request.map</a>
                 <a href="#Request.apply">Request.apply</a><br><a href="#Request.getValue">Request.getValue</a><br><a href="#Request.toTask">Request.toTask</a><br><a href="#Request.getDependencies">Request.getDependencies</a><br>
 </td>
 </tr>
@@ -515,7 +516,7 @@
 
 <p><a name="Task.exitOnError"></a></p>
 
-<h3>Task.onError(fn, ...)</h3>
+<h3>Task.exitOnError(fn, ...)</h3>
 
 <p>Sets an error handler for the <em>Task</em>. This error handler is executed when the <em>Task</em> returns an error or throws an exception. Returns the <em>Task</em>.</p>
 
@@ -583,6 +584,26 @@
 <p><strong>Example</strong></p>
 
 <div class="highlight"><pre><span class="nx">X</span><span class="p">.</span><span class="nx">getAll</span><span class="p">().</span><span class="nx">getValue</span><span class="p">({</span><span class="nx">a</span><span class="o">:</span><span class="mi">42</span><span class="p">});</span>
+</pre></div>
+
+<p><a name="Request.map"></a></p>
+
+<h3>Request.map(fn)</h3>
+
+<p>Sets a map function to use when getting value from a result. Returns the <em>Request</em>.</p>
+
+<p><strong>Arguments</strong></p>
+
+<ul>
+<li>fn    -   A function that maps over a result <em>Array</em> from <a href="#Request.get">query</a>.</li>
+</ul><p><strong>Example</strong></p>
+
+<div class="highlight"><pre><span class="c1">/// This should print: [1, 4, 9 ] [1, 2, 3 ]</span>
+<span class="nx">X</span><span class="p">.</span><span class="nx">run</span><span class="p">({</span>
+    <span class="nx">input</span><span class="o">:</span>  <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">9</span><span class="p">],</span>
+    <span class="nx">roots</span><span class="o">:</span>  <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"input"</span><span class="p">).</span><span class="nx">map</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">sqrt</span><span class="p">),</span>
+    <span class="nx">print</span><span class="o">:</span>  <span class="nx">X</span><span class="p">.</span><span class="nx">callSync</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">,</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"input"</span><span class="p">),</span> <span class="nx">X</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"roots"</span><span class="p">)),</span>
+<span class="p">});</span>
 </pre></div>
 
 <p><a name="Request.apply"></a></p>
