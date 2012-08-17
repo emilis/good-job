@@ -285,6 +285,7 @@ Job.prototype.taskDone =    function(name, err, result) {
  *
  */
 Job.prototype.nextStep =    function() {
+    var job =   this;
 
     for (var tname in this.tasks) {
         runTask(this, tname, this.tasks[tname]);
