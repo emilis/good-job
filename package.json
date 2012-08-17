@@ -1,6 +1,6 @@
 {
     "name":         "good-job",
-    "version":      "1.1.0",
+    "version":      "1.1.1",
     "description":  "A simple way to write complex asynchronous code.",
     "keywords":     [   "development",  "async" ],
     "homepage":     "http://emilis.github.com/good-job/",
