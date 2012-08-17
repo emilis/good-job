@@ -455,7 +455,7 @@ X.run({
 ```
 
 <a name="Task.exitOnError"></a>
-### Task.onError(fn, ...)
+### Task.exitOnError(fn, ...)
 
 Sets an error handler for the _Task_. This error handler is executed when the _Task_ returns an error or throws an exception. Returns the _Task_.
 
