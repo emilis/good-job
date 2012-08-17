@@ -129,6 +129,7 @@ X.get("file_contents")
                 <a href="#Task.exitOnError">Task.exitOnError</a><br>
                 <a href="#Task.compile">Task.compile</a><br>
             </td><td valign="top">
+                <a href="#Request.map">Request.map</a></br>
                 <a href="#Request.apply">Request.apply</a><br>
                 <a href="#Request.getValue">Request.getValue</a><br>
                 <a href="#Request.toTask">Request.toTask</a><br>
@@ -521,6 +522,26 @@ __Example__
 
 ```javascript
 X.getAll().getValue({a:42});
+```
+
+<a name="Request.map"></a>
+### Request.map(fn)
+
+Sets a map function to use when getting value from a result. Returns the _Request_.
+
+__Arguments__
+
+* fn    -   A function that maps over a result _Array_ from [query](#Request.get).
+
+__Example__
+
+```javascript
+/// This should print: [1, 4, 9 ] [1, 2, 3 ]
+X.run({
+    input:  [1,4,9],
+    roots:  X.get("input").map(Math.sqrt),
+    print:  X.callSync(console.log, X.get("input"), X.get("roots")),
+});
 ```
 
 <a name="Request.apply"></a>

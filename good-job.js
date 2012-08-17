@@ -591,6 +591,19 @@ Request.prototype.apply =       function(fn) {
 
     this.filter =   fn;
     this.apply =    true;
+    this.map =      false;
+    return this;
+};
+
+
+/**
+ *
+ */
+Request.prototype.map =         function(fn) {
+
+    this.filter =   fn;
+    this.apply =    false;
+    this.map =      true;
     return this;
 };
 
@@ -622,12 +635,18 @@ Request.prototype.getValue =     function (results) {
 
     /// Apply filter if needed:
     if (this.filter) {
-        if (this.query instanceof Array) {
-            var args =  getValue(this.query);
+        if (this.map) {
+            return getValue(this.query).map(this.filter);
+        } else if (this.apply) {
+            if (this.query instanceof Array) {
+                var args =  getValue(this.query);
+            } else {
+                var args =  [getValue(this.query)];
+            }
+            return this.filter.apply(this, args);
         } else {
-            var args =  [getValue(this.query)];
+            throw Error("Unknown filter type " + this.filter);
         }
-        return this.filter.apply(this, args);
     } else {
         return getValue(this.query);
     }
