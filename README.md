@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/emilis/good-job.png)](http://travis-ci.org/emilis/good-job)
 #   Good Job
 
 A simple way to write complex asynchronous code.
